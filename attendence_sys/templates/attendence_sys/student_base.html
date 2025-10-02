@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Portal{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            overflow-x: hidden;
+        }
+        
+        /* Side Navigation */
+        .sidenav {
+            height: 100vh;
+            width: 260px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(180deg, #28a745 0%, #20c997 100%);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .sidenav.collapsed {
+            width: 80px;
+        }
+        
+        .sidenav-header {
+            padding: 25px 20px;
+            background: rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .sidenav-brand {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .sidenav-brand i {
+            font-size: 1.5rem;
+        }
+        
+        .sidenav.collapsed .brand-text {
+            display: none;
+        }
+        
+        .sidenav-toggle {
+            position: absolute;
+            top: 25px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .sidenav-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .user-info {
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 1.5rem;
+        }
+        
+        .sidenav.collapsed .user-avatar {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .user-id {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .sidenav.collapsed .user-name,
+        .sidenav.collapsed .user-id {
+            display: none;
+        }
+        
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            list-style: none;
+        }
+        
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link-custom:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-decoration: none;
+            padding-left: 30px;
+        }
+        
+        .nav-link-custom.active {
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid white;
+        }
+        
+        .nav-link-custom i {
+            font-size: 1.2rem;
+            width: 30px;
+            margin-right: 15px;
+        }
+        
+        .sidenav.collapsed .nav-link-custom {
+            justify-content: center;
+            padding: 15px;
+        }
+        
+        .sidenav.collapsed .nav-link-custom i {
+            margin-right: 0;
+        }
+        
+        .sidenav.collapsed .nav-link-text {
+            display: none;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+        
+        .main-content.expanded {
+            margin-left: 80px;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidenav {
+                width: 260px;
+                transform: translateX(-100%);
+            }
+            
+            .sidenav.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .main-content.expanded {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 999;
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                border: none;
+                width: 45px;
+                height: 45px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+            
+            .sidenav-toggle {
+                display: none;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-toggle {
+                display: none;
+            }
+        }
+        
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-toggle" onclick="toggleMobileSidenav()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Side Navigation -->
+    <div class="sidenav" id="sidenav">
+        <div class="sidenav-header">
+            <button class="sidenav-toggle" onclick="toggleSidenav()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="{% url 'student_dashboard' %}" class="sidenav-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span class="brand-text">EduPortal</span>
+            </a>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="user-name">{{ student.firstname }} {{ student.lastname }}</div>
+            <div class="user-id">{{ student.registration_id }}</div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{% url 'student_dashboard' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    <span class="nav-link-text">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'student_grades' %}" class="nav-link-custom {% if 'grades' in request.path %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="nav-link-text">My Grades</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'student_transcript' %}" class="nav-link-custom {% if 'transcript' in request.path %}active{% endif %}">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="nav-link-text">Transcript</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'student_mark_attendance' %}" class="nav-link-custom {% if 'mark' in request.path %}active{% endif %}">
+                    <i class="fas fa-camera"></i>
+                    <span class="nav-link-text">Mark Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link-custom">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="nav-link-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function toggleSidenav() {
+            const sidenav = document.getElementById('sidenav');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidenav.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+        
+        function toggleMobileSidenav() {
+            const sidenav = document.getElementById('sidenav');
+            sidenav.classList.toggle('mobile-open');
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidenav = document.getElementById('sidenav');
+            const mobileToggle = document.querySelector('.mobile-toggle');
+            
+            if (window.innerWidth <= 768) {
+                if (!sidenav.contains(event.target) && !mobileToggle.contains(event.target)) {
+                    sidenav.classList.remove('mobile-open');
+                }
+            }
+        });
+        
+        {% block extra_js %}{% endblock %}
+    </script>
+</body>
+</html>

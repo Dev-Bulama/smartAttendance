@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Gradebook</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+        
+        .modern-navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+        }
+        
+        .navbar-brand-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .navbar-user {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-link:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .page-header h2 {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .course-info {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .course-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+        
+        .filters-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .gradebook-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .gradebook-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+        
+        .gradebook-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .gradebook-table th {
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .gradebook-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .gradebook-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .student-name {
+            text-align: left !important;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .grade-cell {
+            font-size: 0.9rem;
+        }
+        
+        .grade-cell small {
+            display: block;
+            color: #666;
+            font-size: 0.75rem;
+        }
+        
+        .average-cell {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .no-grade {
+            color: #999;
+        }
+        
+        .back-button {
+            margin-bottom: 20px;
+        }
+        
+        .back-button a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-button a:hover {
+            color: #764ba2;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-content {
+                padding: 0 15px;
+            }
+            
+            .navbar-menu {
+                gap: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .page-header {
+                padding: 20px;
+            }
+            
+            .gradebook-container {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-user {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="modern-navbar">
+        <div class="navbar-content">
+            <a href="{% url 'lecturer_dashboard' %}" class="navbar-brand-text">
+                <i class="fas fa-graduation-cap"></i> Attendance System
+            </a>
+            <div class="navbar-menu">
+                <span class="navbar-user">
+                    <i class="fas fa-user-circle"></i> {{ faculty.firstname }} {{ faculty.lastname }}
+                </span>
+                <a href="{% url 'lecturer_dashboard' %}" class="navbar-link">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="{% url 'manage_grades' %}" class="navbar-link">
+                    <i class="fas fa-chart-bar"></i> Grades
+                </a>
+                <a href="{% url 'logout' %}" class="navbar-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 30px; max-width: 95%;">
+        <div class="back-button">
+            <a href="{% url 'manage_grades' %}">
+                <i class="fas fa-arrow-left"></i> Back to Grades
+            </a>
+        </div>
+        
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-circle"></i> {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            {% else %}
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle"></i> {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="page-header">
+            <h2><i class="fas fa-book-open"></i> Course Gradebook</h2>
+            <div class="course-info">
+                <p><strong>Course:</strong> {{ course.course_code }} - {{ course.course_name }}</p>
+                <p><strong>Branch:</strong> {{ course.branch }} | <strong>Year:</strong> {{ course.year }} | <strong>Section:</strong> {{ course.section }}</p>
+                <p><strong>Credits:</strong> {{ course.credits }}</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <form method="GET" class="form-inline">
+                <label class="mr-2">Semester:</label>
+                <select name="semester" class="form-control mr-3">
+                    <option value="Fall" {% if semester == "Fall" %}selected{% endif %}>Fall</option>
+                    <option value="Spring" {% if semester == "Spring" %}selected{% endif %}>Spring</option>
+                </select>
+                
+                <label class="mr-2">Academic Year:</label>
+                <input type="text" name="academic_year" class="form-control mr-3" 
+                       value="{{ academic_year }}" placeholder="e.g., 2024-2025">
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+            </form>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">{{ gradebook_data|length }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ semester }}</div>
+                <div class="stat-label">Semester</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ academic_year }}</div>
+                <div class="stat-label">Academic Year</div>
+            </div>
+        </div>
+
+        <!-- Gradebook Table -->
+        <div class="gradebook-container">
+            <table class="gradebook-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">S.No</th>
+                        <th rowspan="2">Registration ID</th>
+                        <th rowspan="2">Student Name</th>
+                        <th colspan="3">Quizzes</th>
+                        <th colspan="3">Assignments</th>
+                        <th>Midterm</th>
+                        <th>Final</th>
+                        <th colspan="2">Projects</th>
+                        <th rowspan="2">Average %</th>
+                    </tr>
+                    <tr>
+                        <th>Q1</th>
+                        <th>Q2</th>
+                        <th>Q3</th>
+                        <th>A1</th>
+                        <th>A2</th>
+                        <th>A3</th>
+                        <th>M</th>
+                        <th>F</th>
+                        <th>P1</th>
+                        <th>P2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in gradebook_data %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ data.student.registration_id }}</td>
+                        <td class="student-name">{{ data.student.firstname }} {{ data.student.lastname }}</td>
+                        
+                        <!-- Quizzes -->
+                        {% for quiz in data.quiz|slice:":3" %}
+                        <td class="grade-cell">
+                            {% if quiz %}
+                                {{ quiz.percentage|floatformat:1 }}%
+                                <small>{{ quiz.grade_letter }}</small>
+                            {% else %}
+                                <span class="no-grade">-</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                        {% if data.quiz|length < 3 %}
+                            {% for i in "123"|slice:data.quiz|length %}
+                            <td class="no-grade">-</td>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <!-- Assignments -->
+                        {% for assignment in data.assignment|slice:":3" %}
+                        <td class="grade-cell">
+                            {% if assignment %}
+                                {{ assignment.percentage|floatformat:1 }}%
+                                <small>{{ assignment.grade_letter }}</small>
+                            {% else %}
+                                <span class="no-grade">-</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                        {% if data.assignment|length < 3 %}
+                            {% for i in "123"|slice:data.assignment|length %}
+                            <td class="no-grade">-</td>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <!-- Midterm -->
+                        <td class="grade-cell">
+                            {% if data.midterm %}
+                                {{ data.midterm.percentage|floatformat:1 }}%
+                                <small>{{ data.midterm.grade_letter }}</small>
+                            {% else %}
+                                <span class="no-grade">-</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Final -->
+                        <td class="grade-cell">
+                            {% if data.final %}
+                                {{ data.final.percentage|floatformat:1 }}%
+                                <small>{{ data.final.grade_letter }}</small>
+                            {% else %}
+                                <span class="no-grade">-</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Projects -->
+                        {% for project in data.project|slice:":2" %}
+                        <td class="grade-cell">
+                            {% if project %}
+                                {{ project.percentage|floatformat:1 }}%
+                                <small>{{ project.grade_letter }}</small>
+                            {% else %}
+                                <span class="no-grade">-</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                        {% if data.project|length < 2 %}
+                            {% for i in "12"|slice:data.project|length %}
+                            <td class="no-grade">-</td>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <!-- Average -->
+                        <td class="average-cell">
+                            {% if data.average > 0 %}
+                                {{ data.average }}%
+                            {% else %}
+                                <span class="no-grade">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

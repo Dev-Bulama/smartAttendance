@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark My Attendance</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- face-api.js from CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .attendance-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-button {
+            margin-bottom: 20px;
+        }
+        
+        .back-button a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button a:hover {
+            color: #764ba2;
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header-icon {
+            font-size: 60px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .header-section h2 {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .header-section p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .student-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .student-info h5 {
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        /* Video Container */
+        #videoContainer {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto 20px;
+            display: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        #statusMessage {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        #statusMessage.loading {
+            background: #fff3cd;
+            color: #856404;
+            display: block;
+        }
+        
+        #statusMessage.detecting {
+            background: #cce5ff;
+            color: #004085;
+            display: block;
+        }
+        
+        #statusMessage.matched {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        #statusMessage.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-start-camera {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-start-camera:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-start-camera:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h6 {
+            color: #856404;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #856404;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 576px) {
+            .attendance-card {
+                padding: 25px 20px;
+            }
+            
+            .header-icon {
+                font-size: 45px;
+            }
+            
+            .header-section h2 {
+                font-size: 1.5rem;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="attendance-card">
+        <div class="back-button">
+            <a href="{% url 'student_dashboard' %}">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+        
+        <div class="header-section">
+            <div class="header-icon">
+                <i class="fas fa-camera"></i>
+            </div>
+            <h2>Mark My Attendance</h2>
+            <p>Use facial recognition to verify your presence</p>
+        </div>
+        
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-circle"></i> {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            {% elif message.tags == 'warning' %}
+                <div class="alert alert-warning alert-dismissible fade show">
+                    <i class="fas fa-exclamation-triangle"></i> {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            {% else %}
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle"></i> {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            {% endif %}
+        {% endfor %}
+        
+        <div class="student-info">
+            <h5><i class="fas fa-user"></i> Student Information</h5>
+            <div class="info-row">
+                <span class="info-label">Name:</span>
+                <span class="info-value">{{ student.firstname }} {{ student.lastname }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Registration ID:</span>
+                <span class="info-value">{{ student.registration_id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Branch:</span>
+                <span class="info-value">{{ student.branch }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Year - Section:</span>
+                <span class="info-value">Year {{ student.year }} - Section {{ student.section }}</span>
+            </div>
+        </div>
+        
+        {% if not has_profile_pic %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <strong>No Profile Picture!</strong> You need to upload a profile picture before using facial recognition. Please contact your administrator.
+        </div>
+        {% else %}
+        
+        <div class="instructions">
+            <h6><i class="fas fa-info-circle"></i> Instructions:</h6>
+            <ul>
+                <li>Select the period you're attending</li>
+                <li>Click "Start Face Verification"</li>
+                <li>Allow camera access when prompted</li>
+                <li>Position your face clearly in the camera</li>
+                <li>Wait for the system to recognize your face</li>
+                <li>Attendance will be marked automatically when face matches</li>
+            </ul>
+        </div>
+        
+        <div id="statusMessage"></div>
+        
+        <form method="POST" id="attendanceForm">
+            {% csrf_token %}
+            <input type="hidden" name="face_verified" id="faceVerified" value="false">
+            
+            <div class="form-group">
+                <label for="period">
+                    <i class="fas fa-clock"></i> Select Period/Class <span style="color: red;">*</span>
+                </label>
+                <select name="period" id="period" class="form-control" required>
+                    <option value="">Choose a period...</option>
+                    <option value="1">Period 1</option>
+                    <option value="2">Period 2</option>
+                    <option value="3">Period 3</option>
+                    <option value="4">Period 4</option>
+                    <option value="5">Period 5</option>
+                    <option value="6">Period 6</option>
+                    <option value="7">Period 7</option>
+                </select>
+            </div>
+            
+            <button type="button" id="startButton" class="btn-start-camera">
+                <i class="fas fa-camera"></i> Start Face Verification
+            </button>
+        </form>
+        
+        <div id="videoContainer">
+            <video id="video" autoplay muted playsinline></video>
+            <canvas id="canvas"></canvas>
+        </div>
+        
+        {% endif %}
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% if has_profile_pic %}
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const videoContainer = document.getElementById('videoContainer');
+        const startButton = document.getElementById('startButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const attendanceForm = document.getElementById('attendanceForm');
+        const faceVerifiedInput = document.getElementById('faceVerified');
+        const periodSelect = document.getElementById('period');
+        
+        let modelsLoaded = false;
+        let referenceDescriptor = null;
+        let isProcessing = false;
+        
+        // Profile picture URL
+        const profilePicUrl = "{{ student.profile_pic.url }}";
+        
+        function updateStatus(message, className) {
+            statusMessage.textContent = message;
+            statusMessage.className = className;
+        }
+        
+        // Load face-api.js models
+        async function loadModels() {
+            updateStatus('Loading AI models...', 'loading');
+            try {
+                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+                
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+                ]);
+                
+                modelsLoaded = true;
+                updateStatus('AI models loaded successfully!', 'matched');
+                return true;
+            } catch (error) {
+                console.error('Error loading models:', error);
+                updateStatus('Failed to load AI models. Please refresh the page.', 'error');
+                return false;
+            }
+        }
+        
+        // Load and process reference image
+        async function loadReferenceImage() {
+            try {
+                updateStatus('Loading your profile picture...', 'loading');
+                
+                const img = await faceapi.fetchImage(profilePicUrl);
+                const detection = await faceapi
+                    .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+                    .withFaceLandmarks()
+                    .withFaceDescriptor();
+                
+                if (detection) {
+                    referenceDescriptor = detection.descriptor;
+                    updateStatus('Profile loaded! Starting camera...', 'matched');
+                    return true;
+                } else {
+                    updateStatus('No face detected in your profile picture. Please upload a clear face photo.', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error loading reference image:', error);
+                updateStatus('Failed to load profile picture. Please check your internet connection.', 'error');
+                return false;
+            }
+        }
+        
+        // Start camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                });
+                video.srcObject = stream;
+                videoContainer.style.display = 'block';
+                return true;
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                updateStatus('Camera access denied. Please allow camera access and try again.', 'error');
+                return false;
+            }
+        }
+        
+        // Detect and compare faces
+        async function detectFace() {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            
+            try {
+                const detections = await faceapi
+                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
+                
+                // Clear canvas
+                const displaySize = { width: video.videoWidth, height: video.videoHeight };
+                faceapi.matchDimensions(canvas, displaySize);
+                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (detections.length > 0) {
+                    updateStatus(`Analyzing ${detections.length} face(s)...`, 'detecting');
+                    
+                    // Draw detections
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                    
+                    for (const detection of detections) {
+                        const distance = faceapi.euclideanDistance(referenceDescriptor, detection.descriptor);
+                        const threshold = 0.6; // Lower is more strict
+                        
+                        if (distance < threshold) {
+                            // Face matched!
+                            faceapi.draw.drawDetections(canvas, resizedDetections);
+                            faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+                            
+                            updateStatus('✅ Face recognized! Marking attendance...', 'matched');
+                            
+                            // Stop video
+                            video.srcObject.getTracks().forEach(track => track.stop());
+                            videoContainer.style.display = 'none';
+                            
+                            // Mark as verified and submit
+                            faceVerifiedInput.value = 'true';
+                            setTimeout(() => {
+                                attendanceForm.submit();
+                            }, 1000);
+                            
+                            return;
+                        } else {
+                            // Draw red box for unrecognized face
+                            const ctx = canvas.getContext('2d');
+                            ctx.strokeStyle = 'red';
+                            ctx.lineWidth = 3;
+                            const box = detection.detection.box;
+                            ctx.strokeRect(box.x, box.y, box.width, box.height);
+                        }
+                    }
+                    
+                    updateStatus('Face detected but not recognized. Please face the camera directly.', 'detecting');
+                } else {
+                    updateStatus('No face detected. Please position your face in the camera.', 'detecting');
+                }
+            } catch (error) {
+                console.error('Detection error:', error);
+            }
+            
+            isProcessing = false;
+        }
+        
+        // Start button handler
+        startButton.addEventListener('click', async () => {
+            if (!periodSelect.value) {
+                alert('Please select a period first!');
+                return;
+            }
+            
+            startButton.disabled = true;
+            startButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            
+            if (!modelsLoaded) {
+                const loaded = await loadModels();
+                if (!loaded) {
+                    startButton.disabled = false;
+                    startButton.innerHTML = '<i class="fas fa-camera"></i> Start Face Verification';
+                    return;
+                }
+            }
+            
+            if (!referenceDescriptor) {
+                const loaded = await loadReferenceImage();
+                if (!loaded) {
+                    startButton.disabled = false;
+                    startButton.innerHTML = '<i class="fas fa-camera"></i> Start Face Verification';
+                    return;
+                }
+            }
+            
+            const cameraStarted = await startCamera();
+            if (cameraStarted) {
+                startButton.style.display = 'none';
+                updateStatus('Looking for your face...', 'detecting');
+                
+                // Start face detection loop
+                video.addEventListener('play', () => {
+                    setInterval(detectFace, 500); // Check every 500ms
+                });
+            } else {
+                startButton.disabled = false;
+                startButton.innerHTML = '<i class="fas fa-camera"></i> Start Face Verification';
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,130 @@
+Folder PATH listing
+Volume serial number is FC6B-FA6F
+C:.
+|   =1.19.0
+|   db.sqlite3
+|   f
+|   Final_video.gif
+|   Final_video.mp4
+|   manage.py
+|   README.md
+|   requirements.txt
+|   structure.txt
+|   
++---attendence_sys
+|   |   admin.py
+|   |   apps.py
+|   |   filters.py
+|   |   forms.py
+|   |   models.py
+|   |   recognizer.py
+|   |   tests.py
+|   |   urls.py
+|   |   views.py
+|   |   
+|   +---migrations
+|   |       0001_initial.py
+|   |       0002_attendence_period.py
+|   |       0003_faculty_profile_pic.py
+|   |       0004_auto_20200626_2227.py
+|   |       0005_auto_20200626_2245.py
+|   |       0006_student_profile_pic.py
+|   |       0007_faculty_user.py
+|   |       0008_auto_20200629_0102.py
+|   |       0009_auto_20200629_1646.py
+|   |       0010_delete_attendence.py
+|   |       0011_attendence.py
+|   |       0012_auto_20200629_1700.py
+|   |       0013_auto_20200630_1126.py
+|   |       0014_auto_20200702_1222.py
+|   |       0015_auto_20200702_1227.py
+|   |       0016_auto_20200702_1228.py
+|   |       0017_auto_20200702_1231.py
+|   |       
+|   +---templates
+|   |   \---attendence_sys
+|   |           attendence.html
+|   |           facultyForm.html
+|   |           home.html
+|   |           login.html
+|   |           main.html
+|   |           navbar.html
+|   |           student_update.html
+|   |           videoFeed.html
+|   |           
+|   \---__pycache__
+|           admin.cpython-313.pyc
+|           apps.cpython-313.pyc
+|           filters.cpython-313.pyc
+|           forms.cpython-313.pyc
+|           models.cpython-313.pyc
+|           recognizer.cpython-313.pyc
+|           urls.cpython-313.pyc
+|           views.cpython-313.pyc
+|           
++---Attendence_System
+|   |   asgi.py
+|   |   settings.py
+|   |   urls.py
+|   |   wsgi.py
+|   |   
+|   \---__pycache__
+|           settings.cpython-313.pyc
+|           urls.cpython-313.pyc
+|           wsgi.cpython-313.pyc
+|           
++---dlib
+|   |   dlib.pyd
+|   |   
+|   \---examples
+|           cnn_face_detector.py
+|           correlation_tracker.py
+|           face_alignment.py
+|           face_clustering.py
+|           face_detector.py
+|           face_jitter.py
+|           face_landmark_detection.py
+|           face_recognition.py
+|           find_candidate_object_locations.py
+|           global_optimization.py
+|           LICENSE_FOR_EXAMPLE_PROGRAMS.txt
+|           max_cost_assignment.py
+|           requirements.txt
+|           sequence_segmenter.py
+|           svm_binary_classifier.py
+|           svm_rank.py
+|           svm_struct.py
+|           train_object_detector.py
+|           train_shape_predictor.py
+|           
++---dlib-19.8.1.dist-info
+|       DESCRIPTION.rst
+|       INSTALLER
+|       METADATA
+|       metadata.json
+|       RECORD
+|       top_level.txt
+|       WHEEL
+|       
+\---static
+    \---images
+        |   logo.png
+        |   
+        +---Faculty_Images
+        |       VENU_GOPALKADAMBA.jpg
+        |       
+        \---Student_Images
+            \---CSE
+                +---1
+                |   \---A
+                |           123456789.jpeg
+                |           
+                \---2
+                    +---A
+                    |       123456789.jpeg
+                    |       
+                    \---C
+                            18341A05G6.jpg
+                            18341A05G7.jpg
+                            18341A05G8.jpg
+                            

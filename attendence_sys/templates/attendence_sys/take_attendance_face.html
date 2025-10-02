@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Attendance - Face Recognition</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- face-api.js from CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .attendance-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-button {
+            margin-bottom: 20px;
+        }
+        
+        .back-button a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button a:hover {
+            color: #764ba2;
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header-icon {
+            font-size: 60px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .header-section h2 {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .class-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .class-info h5 {
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        /* Video Container */
+        #videoContainer {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto 20px;
+            display: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        #statusMessage {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        #statusMessage.loading {
+            background: #fff3cd;
+            color: #856404;
+            display: block;
+        }
+        
+        #statusMessage.detecting {
+            background: #cce5ff;
+            color: #004085;
+            display: block;
+        }
+        
+        #statusMessage.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .recognized-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .recognized-list h5 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .student-chip {
+            display: inline-block;
+            background: #d4edda;
+            color: #155724;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-start-camera {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-start-camera:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-start-camera:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-finish {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            background: #28a745;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .btn-finish:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h6 {
+            color: #856404;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #856404;
+        }
+        
+        @media (max-width: 576px) {
+            .attendance-card {
+                padding: 25px 20px;
+            }
+            
+            .header-icon {
+                font-size: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="attendance-card">
+        <div class="back-button">
+            <a href="{% url 'lecturer_dashboard' %}">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+        
+        <div class="header-section">
+            <div class="header-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <h2>Take Attendance - Face Recognition</h2>
+            <p style="color: #666;">Use facial recognition to mark student attendance</p>
+        </div>
+        
+        <div class="class-info">
+            <h5><i class="fas fa-info-circle"></i> Class Details</h5>
+            <div class="info-row">
+                <span><strong>Branch:</strong></span>
+                <span>{{ details.branch }}</span>
+            </div>
+            <div class="info-row">
+                <span><strong>Year:</strong></span>
+                <span>{{ details.year }}</span>
+            </div>
+            <div class="info-row">
+                <span><strong>Section:</strong></span>
+                <span>{{ details.section }}</span>
+            </div>
+            <div class="info-row">
+                <span><strong>Period:</strong></span>
+                <span>{{ details.period }}</span>
+            </div>
+            <div class="info-row">
+                <span><strong>Total Students:</strong></span>
+                <span id="totalStudents">{{ students|length }}</span>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h6><i class="fas fa-info-circle"></i> Instructions:</h6>
+            <ul>
+                <li>Click "Start Face Recognition"</li>
+                <li>Allow camera access when prompted</li>
+                <li>Students should come in front of the camera one by one</li>
+                <li>System will automatically recognize and mark students present</li>
+                <li>Click "Finish & Submit Attendance" when done</li>
+            </ul>
+        </div>
+        
+        <div id="statusMessage"></div>
+        
+        <div id="videoContainer">
+            <video id="video" autoplay muted playsinline></video>
+            <canvas id="canvas"></canvas>
+        </div>
+        
+        <div class="recognized-list" id="recognizedList">
+            <h5><i class="fas fa-check-circle"></i> Recognized Students (<span id="recognizedCount">0</span>)</h5>
+            <div id="recognizedStudents"></div>
+        </div>
+        
+        <form method="POST" id="attendanceForm">
+            {% csrf_token %}
+            <input type="hidden" name="branch" value="{{ details.branch }}">
+            <input type="hidden" name="year" value="{{ details.year }}">
+            <input type="hidden" name="section" value="{{ details.section }}">
+            <input type="hidden" name="period" value="{{ details.period }}">
+            <input type="hidden" name="verified_students" id="verifiedStudents" value="">
+            
+            <button type="button" id="startButton" class="btn-start-camera">
+                <i class="fas fa-camera"></i> Start Face Recognition
+            </button>
+            
+            <button type="submit" id="finishButton" class="btn-finish">
+                <i class="fas fa-check"></i> Finish & Submit Attendance
+            </button>
+        </form>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const videoContainer = document.getElementById('videoContainer');
+        const startButton = document.getElementById('startButton');
+        const finishButton = document.getElementById('finishButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const recognizedList = document.getElementById('recognizedList');
+        const recognizedStudents = document.getElementById('recognizedStudents');
+        const recognizedCount = document.getElementById('recognizedCount');
+        const verifiedStudentsInput = document.getElementById('verifiedStudents');
+        
+        let modelsLoaded = false;
+        let recognizedIds = new Set();
+        let isProcessing = false;
+        
+        // Student data with profile pictures
+       // Student data with profile pictures
+        const students = [
+            {% for student in students %}
+            {
+                id: '{{ student.registration_id }}',
+                name: '{{ student.firstname }} {{ student.lastname }}',
+                image: '{{ student.profile_pic.url }}'
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        let studentDescriptors = [];
+        
+        function updateStatus(message, className) {
+            statusMessage.textContent = message;
+            statusMessage.className = className;
+        }
+        
+        // Load face-api.js models
+        async function loadModels() {
+            updateStatus('Loading AI models...', 'loading');
+            try {
+                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+                
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+                ]);
+                
+                modelsLoaded = true;
+                updateStatus('AI models loaded!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error loading models:', error);
+                updateStatus('Failed to load AI models. Please refresh.', 'error');
+                return false;
+            }
+        }
+        
+        // Load all student face descriptors
+        async function loadStudentDescriptors() {
+            updateStatus('Loading student profiles...', 'loading');
+            
+            for (const student of students) {
+                try {
+                    const img = await faceapi.fetchImage(student.image);
+                    const detection = await faceapi
+                        .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+                        .withFaceLandmarks()
+                        .withFaceDescriptor();
+                    
+                    if (detection) {
+                        studentDescriptors.push({
+                            id: student.id,
+                            name: student.name,
+                            descriptor: detection.descriptor
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Error loading ${student.name}:`, error);
+                }
+            }
+            
+            updateStatus(`Loaded ${studentDescriptors.length} student profiles. Starting camera...`, 'success');
+        }
+        
+        // Start camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                });
+                video.srcObject = stream;
+                videoContainer.style.display = 'block';
+                return true;
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                updateStatus('Camera access denied. Please allow camera access.', 'error');
+                return false;
+            }
+        }
+        
+        // Add recognized student to list
+        function addRecognizedStudent(studentId, studentName) {
+            if (!recognizedIds.has(studentId)) {
+                recognizedIds.add(studentId);
+                
+                const chip = document.createElement('span');
+                chip.className = 'student-chip';
+                chip.innerHTML = `<i class="fas fa-check"></i> ${studentName} (${studentId})`;
+                recognizedStudents.appendChild(chip);
+                
+                recognizedCount.textContent = recognizedIds.size;
+                recognizedList.style.display = 'block';
+                
+                // Update hidden input
+                verifiedStudentsInput.value = Array.from(recognizedIds).join(',');
+                
+                // Show finish button if at least one student recognized
+                finishButton.style.display = 'block';
+            }
+        }
+        
+        // Detect and compare faces
+        async function detectFaces() {
+            if (isProcessing || studentDescriptors.length === 0) return;
+            
+            isProcessing = true;
+            
+            try {
+                const detections = await faceapi
+                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
+                
+                // Clear canvas
+                const displaySize = { width: video.videoWidth, height: video.videoHeight };
+                faceapi.matchDimensions(canvas, displaySize);
+                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (detections.length > 0) {
+                    updateStatus(`Analyzing ${detections.length} face(s)...`, 'detecting');
+                    
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                    
+                    for (const detection of detections) {
+                        let bestMatch = null;
+                        let bestDistance = 1.0;
+                        
+                        // Compare with all student descriptors
+                        for (const student of studentDescriptors) {
+                            const distance = faceapi.euclideanDistance(student.descriptor, detection.descriptor);
+                            
+                            if (distance < bestDistance && distance < 0.6) {
+                                bestDistance = distance;
+                                bestMatch = student;
+                            }
+                        }
+                        
+                        if (bestMatch) {
+                            // Draw green box for recognized face
+                            faceapi.draw.drawDetections(canvas, resizedDetections);
+                            
+                            // Add to recognized list
+                            addRecognizedStudent(bestMatch.id, bestMatch.name);
+                            
+                            updateStatus(`✅ Recognized: ${bestMatch.name}`, 'success');
+                        } else {
+                            // Draw red box for unrecognized face
+                            const ctx = canvas.getContext('2d');
+                            ctx.strokeStyle = 'red';
+                            ctx.lineWidth = 3;
+                            const box = detection.detection.box;
+                            ctx.strokeRect(box.x, box.y, box.width, box.height);
+                            
+                            updateStatus('Face detected but not recognized.', 'detecting');
+                        }
+                    }
+                } else {
+                    updateStatus('No face detected. Position student in front of camera.', 'detecting');
+                }
+            } catch (error) {
+                console.error('Detection error:', error);
+            }
+            
+            isProcessing = false;
+        }
+        
+        // Start button handler
+        startButton.addEventListener('click', async () => {
+            startButton.disabled = true;
+            startButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            
+            if (!modelsLoaded) {
+                const loaded = await loadModels();
+                if (!loaded) {
+                    startButton.disabled = false;
+                    startButton.innerHTML = '<i class="fas fa-camera"></i> Start Face Recognition';
+                    return;
+                }
+            }
+            
+            if (studentDescriptors.length === 0) {
+                await loadStudentDescriptors();
+            }
+            
+            const cameraStarted = await startCamera();
+            if (cameraStarted) {
+                startButton.style.display = 'none';
+                updateStatus('Ready! Students can now come in front of camera.', 'success');
+                
+                // Start face detection loop
+                video.addEventListener('play', () => {
+                    setInterval(detectFaces, 1000); // Check every second
+                });
+            } else {
+                startButton.disabled = false;
+                startButton.innerHTML = '<i class="fas fa-camera"></i> Start Face Recognition';
+            }
+        });
+        
+        // Finish button handler
+        finishButton.addEventListener('click', function(e) {
+            if (recognizedIds.size === 0) {
+                e.preventDefault();
+                alert('No students have been recognized yet!');
+                return;
+            }
+            
+            if (!confirm(`Submit attendance for ${recognizedIds.size} recognized students?`)) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
